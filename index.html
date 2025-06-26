@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Memória</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            box-sizing: border-box;
+        }
+
+        .timer {
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 10px;
+            max-width: 90vw;
+            max-height: 90vh;
+        }
+
+        .card {
+            width: 100%;
+            aspect-ratio: 1;
+            background-color: #007bff;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .card.flipped img {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="timer" id="timer">Tempo: 0s</div>
+    <div class="game-board" id="gameBoard"></div>
+
+    <script>
+        const images = [
+            'https://i.imgur.com/ykFi3Rs.jpeg',
+            'https://i.imgur.com/ykFi3Rs.jpeg',
+            'https://i.imgur.com/CD06uqk.jpeg',
+            'https://i.imgur.com/CD06uqk.jpeg',
+            'https://i.imgur.com/0M1Udvh.jpeg',
+            'https://i.imgur.com/0M1Udvh.jpeg',
+            'https://i.imgur.com/IFb07Ta.jpeg',
+            'https://i.imgur.com/IFb07Ta.jpeg',
+            'https://i.imgur.com/Q6y3Sy7.jpeg',
+            'https://i.imgur.com/Q6y3Sy7.jpeg',
+            'https://i.imgur.com/kSKrjdB.jpeg',
+            'https://i.imgur.com/kSKrjdB.jpeg',
+            'https://i.imgur.com/M8HY611.jpeg',
+            'https://i.imgur.com/M8HY611.jpeg',
+            'https://i.imgur.com/um5sEnF.jpeg',
+            'https://i.imgur.com/um5sEnF.jpeg'
+        ];
+
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let timer = 0;
+        let timerInterval;
+
+        function startTimer() {
+            const timerElement = document.getElementById('timer');
+            timerInterval = setInterval(() => {
+                timer++;
+                timerElement.textContent = `Tempo: ${timer}s`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+        }
+
+        function createBoard() {
+            const gameBoard = document.getElementById('gameBoard');
+            const shuffledImages = 
+                  images.sort(() => 0.5 - Math.random());
+          
+            shuffledImages.forEach((image, index) => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.dataset.image = image;
+
+                const img = document.createElement('img');
+                img.src = image;
+                card.appendChild(img);
+
+                card.addEventListener('click', () => flipCard(card));
+                gameBoard.appendChild(card);
+            });
+        }
+
+        function flipCard(card) {
+            if (flippedCards.length < 2 && !card.classList.contains('flipped')) {
+                card.classList.add('flipped');
+                flippedCards.push(card);
+
+                if (flippedCards.length === 2) {
+                    checkMatch();
+                }
+            }
+        }
+
+        function checkMatch() {
+            const [card1, card2] = flippedCards;
+
+            if (card1.dataset.image === card2.dataset.image) {
+                matchedPairs++;
+                flippedCards = [];
+
+                if (matchedPairs === images.length / 2) {
+                    stopTimer();
+                    setTimeout(() => alert(`Parabéns! Você venceu em ${timer}s!`), 500);
+                }
+            } else {
+                setTimeout(() => {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    flippedCards = [];
+                }, 1000);
+            }
+        }
+
+        createBoard();
+        startTimer();
+    </script>
+</body>
+</html>
